@@ -66,7 +66,14 @@ class AppDialog(QtGui.QWidget):
         self.ui.textBrowser.setText("%s" % rlmresult)
 
     def checkArnoldLicense(self):
-        pass
+        try:
+            flexlmcmd = self.path + "\\lmutil lmstat -a -c 27001@ofgsr-mpio1.local"
+            flexresult = check_output(flexlmcmd)
+
+            self.ui.textBrowser.setText("%s" % flexresult)
+        except Exception as e:
+            self.ui.textBrowser.setText("%s" % e)
+
 
     def checkDeadlineLicense(self):
         try:

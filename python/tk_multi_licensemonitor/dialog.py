@@ -11,11 +11,13 @@
 import sgtk
 import os
 from subprocess import check_output
+import traceback
 
 # by importing QT from sgtk rather than directly, we ensure that
 # the code will be compatible with both PySide and PyQt.
 from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
+from .rlmreader import RLMReader
 
 # import the spinner_widget module from the qtwidgets framework
 spinner_widget = sgtk.platform.import_framework(
@@ -26,44 +28,57 @@ class AppDialog(QtGui.QWidget):
     """
     Main application dialog window
     """
-    
+
     def __init__(self):
         """
         Constructor
         """
         # first, call the base class and let it do its thing.
         QtGui.QWidget.__init__(self)
-        
+
         # now load in the UI that was created in the UI designer
-        self.ui = Ui_Dialog() 
+        self.ui = Ui_Dialog()
         self.ui.setupUi(self)
-        
+
+        # setup treeview
+        self.treeview = self.ui.treeView
+        self.model = QtGui.QStandardItemModel()
+        self.model.setHorizontalHeaderLabels(['User', 'Time'])
+        self.treeview.setModel(self.model)
+        self.treeview.setUniformRowHeights(True)
         # most of the useful accessors are available through the Application class instance
         # it is often handy to keep a reference to this. You can get it via the following method:
         self._app = sgtk.platform.current_bundle()
         self.path = os.path.dirname(os.path.realpath(__file__))
-        
+
         # via the self._app handle we can for example access:
         # - The engine, via self._app.engine
         # - A Shotgun API instance, via self._app.shotgun
-        # - A tk API instance, via self._app.tk 
+        # - A tk API instance, via self._app.tk
 
         # lastly, set up our very basic UI
 
         self.ui.textBrowser.setText("Choose Application to see license info")
 
         self.ui.NukeBtn.clicked.connect(self.checkNukeLicense)
-        self.ui.ArnoldBtn.clicked.connect(self.checkArnoldLicense)
-        self.ui.DeadlineBtn.clicked.connect(self.checkDeadlineLicense)
+        # self.ui.ArnoldBtn.clicked.connect(self.checkArnoldLicense)
+        # self.ui.DeadlineBtn.clicked.connect(self.checkDeadlineLicense)
 
     def checkNukeLicense(self):
         # spinner = spinner_widget.SpinnerWidget(self)
         # spinner.setFixedSize(QtCore.QSize(100, 100))
         # spinner.show()
-        rlmcmd = self.path + "\\rlmutil.exe rlmstat -c 4101@192.168.10.250 -i foundry -avail"
-        rlmresult = check_output(rlmcmd)
+        # \rlmutil.exe rlmstat -c 4101@192.168.10.250 -i foundry -avail"
+        try:
+            reader = RLMReader(self.path, "4101", "192.168.10.250", "foundry")
+            rlmresult = reader.getInfo()
 
-        self.ui.textBrowser.setText("%s" % rlmresult)
+            self.ui.textBrowser.setText("%s" % rlmresult)
+            self.displayInTreeView(rlmresult)
+        except Exception as e:
+            tb = traceback.format_exc()
+            self.ui.textBrowser.setText("%s \n %s" % (e, tb))
+
 
     def checkArnoldLicense(self):
         try:
@@ -74,7 +89,6 @@ class AppDialog(QtGui.QWidget):
         except Exception as e:
             self.ui.textBrowser.setText("%s" % e)
 
-
     def checkDeadlineLicense(self):
         try:
             flexlmcmd = self.path + "\\lmutil lmstat -a -c 27008@ofgsr-mpio1.local"
@@ -83,3 +97,21 @@ class AppDialog(QtGui.QWidget):
             self.ui.textBrowser.setText("%s" % flexresult)
         except Exception as e:
             self.ui.textBrowser.setText("%s" % e)
+
+    def displayInTreeView(self, data):
+        self.model.clear()
+        self.model.setHorizontalHeaderLabels(['User', 'Time'])
+        for licenseName in data:
+            userInfo = data[licenseName]
+            if not userInfo:
+                continue
+            parent = QtGui.QStandardItem("%s (%d/%d)"
+                                         % (licenseName, userInfo[0][0], userInfo[0][1]))
+            for user in userInfo[1:]:
+                child1 = QtGui.QStandardItem(user[0])
+                child2 = QtGui.QStandardItem(user[1])
+                parent.appendRow([child1, child2])
+            self.model.appendRow(parent)
+            # span container columns
+            # self.treeview.setFirstColumnSpanned(i, self.treeview.rootIndex(), True)
+        self.treeview.resizeColumnToContents(0)

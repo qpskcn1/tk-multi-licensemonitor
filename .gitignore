@@ -35,4 +35,5 @@ nosetests.xml
 .project
 .pydevproject
 
-*.db
+# Windows thumbnail cache files
+Thumbs.db

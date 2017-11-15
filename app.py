@@ -11,6 +11,7 @@
 
 import os
 import sgtk
+import traceback
 
 class LicenseMonitor(sgtk.platform.Application):
     """
@@ -22,12 +23,15 @@ class LicenseMonitor(sgtk.platform.Application):
         """
         Called as the application is being initialized
         """
-        tk_multi_licensemonitor = self.import_module("tk_multi_licensemonitor")
+        try:
+            tk_multi_licensemonitor = self.import_module("tk_multi_licensemonitor")
 
-        # register command
-        cb = lambda: tk_multi_licensemonitor.show_dialog(self)
-        menu_caption = "License Monitor..."
-        self.engine.register_command(menu_caption, cb)
+            # register command
+            cb = lambda: tk_multi_licensemonitor.show_dialog(self)
+            menu_caption = "License Monitor..."
+            self.engine.register_command(menu_caption, cb)
+        except Exception:
+            traceback.print_exc()
 
     def destroy_app(self):
         """

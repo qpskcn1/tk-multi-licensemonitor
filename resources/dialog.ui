@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>802</width>
-    <height>454</height>
+    <width>806</width>
+    <height>453</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -20,7 +20,33 @@
    <string>Dialog</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" rowspan="5">
+   <item row="4" column="1">
+    <widget class="QTextBrowser" name="textBrowser">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>50</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QTreeView" name="treeView"/>
+   </item>
+   <item row="1" column="0">
     <layout class="QVBoxLayout" name="verticalLayout">
      <property name="sizeConstraint">
       <enum>QLayout::SetNoConstraint</enum>
@@ -33,44 +59,25 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="ArnoldBtn">
-       <property name="text">
-        <string>Arnold</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="DeadlineBtn">
        <property name="text">
         <string>Deadline</string>
        </property>
       </widget>
      </item>
+     <item>
+      <widget class="QPushButton" name="ArnoldBtn">
+       <property name="text">
+        <string>Arnold</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </item>
-   <item row="4" column="2">
-    <widget class="QTextBrowser" name="textBrowser">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>100</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="2">
-    <widget class="QTreeView" name="treeView"/>
-   </item>
-   <item row="3" column="2">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="4" column="0">
+    <widget class="QPushButton" name="HelpBtn">
+     <property name="text">
+      <string>Help</string>
      </property>
     </widget>
    </item>

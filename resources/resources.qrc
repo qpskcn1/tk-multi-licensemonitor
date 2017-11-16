@@ -1,5 +1,5 @@
 <RCC>
   <qresource prefix="res">
-    <file>nuke_logo.png</file>
+    <file>logo.png</file>
   </qresource>
 </RCC>

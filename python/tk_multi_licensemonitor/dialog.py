@@ -10,7 +10,6 @@
 
 import sgtk
 import os
-from subprocess import check_output
 import traceback
 
 # by importing QT from sgtk rather than directly, we ensure that
@@ -18,10 +17,11 @@ import traceback
 from sgtk.platform.qt import QtCore, QtGui
 from .ui.dialog import Ui_Dialog
 from .rlmreader import RLMReader
+from .flexlmreader import FLEXLMReader
 
-# import the spinner_widget module from the qtwidgets framework
-spinner_widget = sgtk.platform.import_framework(
-    "tk-framework-qtwidgets", "spinner_widget")
+logger = sgtk.platform.get_logger(__name__)
+task_manager = sgtk.platform.import_framework("tk-framework-shotgunutils", "task_manager")
+shotgun_globals = sgtk.platform.import_framework("tk-framework-shotgunutils", "shotgun_globals")
 
 
 class AppDialog(QtGui.QWidget):
@@ -51,62 +51,57 @@ class AppDialog(QtGui.QWidget):
         self._app = sgtk.platform.current_bundle()
         self.path = os.path.dirname(os.path.realpath(__file__))
 
-        # via the self._app handle we can for example access:
-        # - The engine, via self._app.engine
-        # - A Shotgun API instance, via self._app.shotgun
-        # - A tk API instance, via self._app.tk
+        # create a background task manager
+        self._task_manager = task_manager.BackgroundTaskManager(
+            self,
+            start_processing=True,
+            max_threads=2
+        )
 
         # lastly, set up our very basic UI
 
         self.ui.textBrowser.setText("Choose Application to see license info")
 
-        self.ui.NukeBtn.clicked.connect(self.checkNukeLicense)
-        # self.ui.ArnoldBtn.clicked.connect(self.checkArnoldLicense)
-        # self.ui.DeadlineBtn.clicked.connect(self.checkDeadlineLicense)
+        self.ui.NukeBtn.clicked.connect(self.checkLicense("RLM",
+                                                          "4101",
+                                                          "192.168.10.250",
+                                                          "foundry"))
+        self.ui.ArnoldBtn.clicked.connect(self.checkLicense("FLEXLM",
+                                                            "27001",
+                                                            "ofgsr-mpio1.local"))
+        self.ui.DeadlineBtn.clicked.connect(self.checkLicense("FLEXLM",
+                                                              "27008",
+                                                              "ofgsr-mpio1.local"))
 
-    def checkNukeLicense(self):
-        # spinner = spinner_widget.SpinnerWidget(self)
-        # spinner.setFixedSize(QtCore.QSize(100, 100))
-        # spinner.show()
-        # \rlmutil.exe rlmstat -c 4101@192.168.10.250 -i foundry -avail"
-        try:
-            reader = RLMReader(self.path, "4101", "192.168.10.250", "foundry")
-            rlmresult = reader.getInfo()
-
-            self.ui.textBrowser.setText("%s" % rlmresult)
-            self.displayInTreeView(rlmresult)
-        except Exception as e:
-            tb = traceback.format_exc()
-            self.ui.textBrowser.setText("%s \n %s" % (e, tb))
-
-
-    def checkArnoldLicense(self):
-        try:
-            flexlmcmd = self.path + "\\lmutil lmstat -a -c 27001@ofgsr-mpio1.local"
-            flexresult = check_output(flexlmcmd)
-
-            self.ui.textBrowser.setText("%s" % flexresult)
-        except Exception as e:
-            self.ui.textBrowser.setText("%s" % e)
-
-    def checkDeadlineLicense(self):
-        try:
-            flexlmcmd = self.path + "\\lmutil lmstat -a -c 27008@ofgsr-mpio1.local"
-            flexresult = check_output(flexlmcmd)
-
-            self.ui.textBrowser.setText("%s" % flexresult)
-        except Exception as e:
-            self.ui.textBrowser.setText("%s" % e)
+    def checkLicense(self, lm, port, server, isv=None):
+        def _checkLicense():
+            self.ui.textBrowser.append("Fetching data...\n...\n...")
+            QtGui.QApplication.processEvents()
+            try:
+                if lm == "RLM":
+                    reader = RLMReader(self.path, port, server, isv)
+                elif lm == "FLEXLM":
+                    reader = FLEXLMReader(self.path, port, server)
+                result = reader.getInfo()
+                self.displayInTreeView(result)
+                self.ui.textBrowser.append("Success!")
+            except Exception as e:
+                tb = traceback.format_exc()
+                self.ui.textBrowser.setText("%s \n %s" % (e, tb))
+        return _checkLicense
 
     def displayInTreeView(self, data):
         self.model.clear()
         self.model.setHorizontalHeaderLabels(['User', 'Time'])
+        font = QtGui.QFont()
+        font.setPointSize(12)
         for licenseName in data:
             userInfo = data[licenseName]
             if not userInfo:
                 continue
             parent = QtGui.QStandardItem("%s (%d/%d)"
                                          % (licenseName, userInfo[0][0], userInfo[0][1]))
+            parent.setFont(font)
             for user in userInfo[1:]:
                 child1 = QtGui.QStandardItem(user[0])
                 child2 = QtGui.QStandardItem(user[1])
@@ -115,3 +110,20 @@ class AppDialog(QtGui.QWidget):
             # span container columns
             # self.treeview.setFirstColumnSpanned(i, self.treeview.rootIndex(), True)
         self.treeview.resizeColumnToContents(0)
+
+    def closeEvent(self, event):
+        """
+        Executed when the main dialog is closed.
+        All worker threads and other things which need a proper shutdown
+        need to be called here.
+        """
+        logger.debug("CloseEvent Received. Begin shutting down UI.")
+
+        # register the data fetcher with the global schema manager
+        shotgun_globals.unregister_bg_task_manager(self._task_manager)
+
+        try:
+            # shut down main threadpool
+            self._task_manager.shut_down()
+        except Exception as e:
+            logger.exception("Error running Shotgun Panel App closeEvent() %s" % e)

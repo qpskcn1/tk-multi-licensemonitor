@@ -50,5 +50,5 @@ class RLMReader(object):
         if matchUser:
             for i in matchUser:
                 if i.group(1) in licenseInfo:
-                    licenseInfo[i.group(1)].append([i.group(2), i.group(3)])
+                    licenseInfo[i.group(1)].append([i.group(2).upper(), i.group(3)])
         return licenseInfo

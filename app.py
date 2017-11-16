@@ -28,7 +28,7 @@ class LicenseMonitor(sgtk.platform.Application):
 
             # register command
             cb = lambda: tk_multi_licensemonitor.show_dialog(self)
-            menu_caption = "License Monitor..."
+            menu_caption = "License Monitor"
             self.engine.register_command(menu_caption, cb)
         except Exception:
             traceback.print_exc()

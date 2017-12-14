@@ -68,16 +68,6 @@ class AppDialog(QtGui.QWidget):
         except Exception as e:
             tb = traceback.format_exc()
             self.ui.textBrowser.setText("%s \n %s" % (e, tb))
-        # self.ui.NukeBtn.clicked.connect(self.checkLicense("RLM",
-        #                                                   "4101",
-        #                                                   "192.168.10.250",
-        #                                                   "foundry"))
-        # self.ui.ArnoldBtn.clicked.connect(self.checkLicense("FLEXLM",
-        #                                                     "27001",
-        #                                                     "ofgsr-mpio1.local"))
-        # self.ui.DeadlineBtn.clicked.connect(self.checkLicense("FLEXLM",
-        #                                                       "27008",
-        #                                                       "ofgsr-mpio1.local"))
 
     def createButton(self, info):
         button = QtGui.QPushButton(info["Application"])

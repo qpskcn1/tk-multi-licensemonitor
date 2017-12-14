@@ -59,19 +59,33 @@ class AppDialog(QtGui.QWidget):
         )
 
         # lastly, set up our very basic UI
-
+        license_server_info = self._app.get_setting("license_server_info")
+        logger.debug(license_server_info)
         self.ui.textBrowser.setText("Choose Application to see license info")
+        try:
+            for info in license_server_info:
+                self.createButton(info)
+        except Exception as e:
+            tb = traceback.format_exc()
+            self.ui.textBrowser.setText("%s \n %s" % (e, tb))
+        # self.ui.NukeBtn.clicked.connect(self.checkLicense("RLM",
+        #                                                   "4101",
+        #                                                   "192.168.10.250",
+        #                                                   "foundry"))
+        # self.ui.ArnoldBtn.clicked.connect(self.checkLicense("FLEXLM",
+        #                                                     "27001",
+        #                                                     "ofgsr-mpio1.local"))
+        # self.ui.DeadlineBtn.clicked.connect(self.checkLicense("FLEXLM",
+        #                                                       "27008",
+        #                                                       "ofgsr-mpio1.local"))
 
-        self.ui.NukeBtn.clicked.connect(self.checkLicense("RLM",
-                                                          "4101",
-                                                          "192.168.10.250",
-                                                          "foundry"))
-        self.ui.ArnoldBtn.clicked.connect(self.checkLicense("FLEXLM",
-                                                            "27001",
-                                                            "ofgsr-mpio1.local"))
-        self.ui.DeadlineBtn.clicked.connect(self.checkLicense("FLEXLM",
-                                                              "27008",
-                                                              "ofgsr-mpio1.local"))
+    def createButton(self, info):
+        button = QtGui.QPushButton(info["Application"])
+        self.ui.ApplicationBtnLayout.addWidget(button)
+        button.clicked.connect(self.checkLicense(info["LicenseManager"],
+                                                 info["Port"],
+                                                 info["Server"],
+                                                 info["ISV"]))
 
     def checkLicense(self, lm, port, server, isv=None):
         def _checkLicense():
@@ -82,6 +96,8 @@ class AppDialog(QtGui.QWidget):
                     reader = RLMReader(self.path, port, server, isv)
                 elif lm == "FLEXLM":
                     reader = FLEXLMReader(self.path, port, server)
+                else:
+                    raise Exception("Cannot Read License Manager %s" % lm)
                 result = reader.getInfo()
                 self.displayInTreeView(result)
                 self.ui.textBrowser.append("Success!")

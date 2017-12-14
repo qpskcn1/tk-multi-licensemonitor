@@ -13,6 +13,20 @@
 # expected fields in the configuration file for this engine
 configuration:
 
+    license_server_info:
+      type: list
+      description: List of application and its license server info
+      values:
+        type: dict
+        items:
+            Application: { type: str }
+            LicenseManager: { type: str }
+            Port: { type: str }
+            Server: { type: str }
+            ISV: { type: str }
+      allows_empty: True
+      default_value: []
+
 # this app works in all engines - it does not contain 
 # any host application specific commands
 supported_engines: 

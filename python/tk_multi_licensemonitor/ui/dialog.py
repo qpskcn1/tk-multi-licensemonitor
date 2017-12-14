@@ -6,7 +6,7 @@
 
 #
 
-# Created: Mon Nov 20 14:17:38 2017
+# Created: Thu Dec 14 14:07:32 2017
 
 #      by: pyside-uic 0.2.15 running on PySide 1.2.4
 
@@ -25,6 +25,8 @@ class Ui_Dialog(object):
     def setupUi(self, Dialog):
 
         Dialog.setObjectName("Dialog")
+
+        Dialog.setWindowModality(QtCore.Qt.ApplicationModal)
 
         Dialog.resize(806, 453)
 
@@ -82,31 +84,13 @@ class Ui_Dialog(object):
 
         self.gridLayout.addWidget(self.treeView, 0, 2, 2, 1)
 
-        self.verticalLayout = QtGui.QVBoxLayout()
+        self.ApplicationBtnLayout = QtGui.QVBoxLayout()
 
-        self.verticalLayout.setSizeConstraint(QtGui.QLayout.SetNoConstraint)
+        self.ApplicationBtnLayout.setSizeConstraint(QtGui.QLayout.SetNoConstraint)
 
-        self.verticalLayout.setObjectName("verticalLayout")
+        self.ApplicationBtnLayout.setObjectName("ApplicationBtnLayout")
 
-        self.NukeBtn = QtGui.QPushButton(Dialog)
-
-        self.NukeBtn.setObjectName("NukeBtn")
-
-        self.verticalLayout.addWidget(self.NukeBtn)
-
-        self.DeadlineBtn = QtGui.QPushButton(Dialog)
-
-        self.DeadlineBtn.setObjectName("DeadlineBtn")
-
-        self.verticalLayout.addWidget(self.DeadlineBtn)
-
-        self.ArnoldBtn = QtGui.QPushButton(Dialog)
-
-        self.ArnoldBtn.setObjectName("ArnoldBtn")
-
-        self.verticalLayout.addWidget(self.ArnoldBtn)
-
-        self.gridLayout.addLayout(self.verticalLayout, 0, 0, 2, 1)
+        self.gridLayout.addLayout(self.ApplicationBtnLayout, 0, 0, 2, 1)
 
 
 
@@ -121,12 +105,6 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(QtGui.QApplication.translate("Dialog", "Dialog", None, QtGui.QApplication.UnicodeUTF8))
 
         self.HelpBtn.setText(QtGui.QApplication.translate("Dialog", "Help", None, QtGui.QApplication.UnicodeUTF8))
-
-        self.NukeBtn.setText(QtGui.QApplication.translate("Dialog", "Nuke", None, QtGui.QApplication.UnicodeUTF8))
-
-        self.DeadlineBtn.setText(QtGui.QApplication.translate("Dialog", "Deadline", None, QtGui.QApplication.UnicodeUTF8))
-
-        self.ArnoldBtn.setText(QtGui.QApplication.translate("Dialog", "Arnold", None, QtGui.QApplication.UnicodeUTF8))
 
 
 

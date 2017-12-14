@@ -60,31 +60,10 @@
     <widget class="QTreeView" name="treeView"/>
    </item>
    <item row="0" column="0" rowspan="2">
-    <layout class="QVBoxLayout" name="verticalLayout">
+    <layout class="QVBoxLayout" name="ApplicationBtnLayout">
      <property name="sizeConstraint">
       <enum>QLayout::SetNoConstraint</enum>
      </property>
-     <item>
-      <widget class="QPushButton" name="NukeBtn">
-       <property name="text">
-        <string>Nuke</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="DeadlineBtn">
-       <property name="text">
-        <string>Deadline</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="ArnoldBtn">
-       <property name="text">
-        <string>Arnold</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </item>
   </layout>

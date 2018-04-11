@@ -34,7 +34,7 @@ class RLMReader(object):
 
     def _parseInfo(self, rlmresult):
         licenseInfo = {}
-        licenseType_re = re.compile(r"(nuke[^\s]+).*\n.*(count:)\s(\d).*(inuse:)\s(\d)")
+        licenseType_re = re.compile(r"([^\s]+).*\n.*(count:)\s(\d).*(inuse:)\s(\d)")
         matchType = licenseType_re.finditer(rlmresult)
         if matchType:
             for t in matchType:
@@ -45,7 +45,7 @@ class RLMReader(object):
                 else:
                     licenseInfo[t.group(1)] = [[int(t.group(5)), int(t.group(3))]]
 
-        userInfo_re = re.compile(r"(nuke[^\s]+).*:\s(.*@[^\s]+).*at\s([^\r]+)")
+        userInfo_re = re.compile(r"([^\s]+).*:\s(.*@[^\s]+).*at\s([^\r]+)")
         matchUser = userInfo_re.finditer(rlmresult)
         if matchUser:
             for i in matchUser:
